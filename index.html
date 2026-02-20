@@ -3,87 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State Selector</title>
+    <title>State & City Selector</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
-            margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 600px;
-            width: 100%;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 1.5rem;
-        }
-        .state-row {
-            display: grid;
-            grid-template-columns: 1fr auto auto auto auto;
-            gap: 15px;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-            align-items: center;
-        }
-        .state-row:last-child {
-            border-bottom: none;
-        }
-        .state-name {
-            font-weight: 500;
-        }
-        label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        button {
-            width: 100%;
-            padding: 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 2rem;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #message {
-            text-align: center;
-            margin-top: 1rem;
-            font-weight: bold;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f4f9; color: #333; display: flex; justify-content: center; padding: 2rem; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
+        h1, h2 { text-align: center; margin-bottom: 1.5rem; }
+        h2 { margin-top: 3rem; font-size: 1.2rem; color: #555; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;}
+        .data-row { display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 15px; padding: 12px 0; border-bottom: 1px solid #eee; align-items: center; }
+        .city-row { display: grid; grid-template-columns: 1fr 100px; gap: 15px; padding: 12px 0; border-bottom: 1px solid #eee; align-items: center; }
+        .name-label { font-weight: 500; }
+        label { display: flex; flex-direction: column; align-items: center; font-size: 0.8rem; cursor: pointer; }
+        input[type="number"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 2rem; transition: background-color 0.2s; }
+        button:hover { background-color: #0056b3; }
+        #message { text-align: center; margin-top: 1rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Continental US State Selector</h1>
-    <form id="stateForm">
+    <h1>Continental US Data Tracker</h1>
+    <form id="dataForm">
+        
+        <h2>State Selection</h2>
         <div id="states-container"></div>
+
+        <h2>Top 25 Metro Areas (Optional Weight)</h2>
+        <div id="cities-container"></div>
+
         <button type="submit" id="submitBtn">Submit Selections</button>
         <div id="message"></div>
     </form>
 </div>
 
 <script>
-    // Paste your Google Apps Script Web App URL here!
+    // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE!
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzwH1OoG6fGMF_L5FsKgeAWqljSTaM3t2oTMKXSo7KistR8DMlQj8YNntiLqrhVcwlP5w/exec';
 
     const states = [
@@ -97,24 +51,42 @@
         "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
     ];
 
-    const container = document.getElementById('states-container');
+    const cities = [
+        "New York City", "Los Angeles", "Chicago", "Dallas", "Houston", "Washington D.C.", 
+        "Philadelphia", "Miami", "Atlanta", "Boston", "Phoenix", "San Francisco", 
+        "Riverside", "Detroit", "Seattle", "Minneapolis", "San Diego", "Tampa", 
+        "Denver", "St. Louis", "Baltimore", "Orlando", "Charlotte", "San Antonio", "Portland"
+    ];
 
-    // Generate the HTML for the 48 states
+    // Generate States
+    const statesContainer = document.getElementById('states-container');
     states.forEach(state => {
         const row = document.createElement('div');
-        row.className = 'state-row';
+        row.className = 'data-row';
         row.innerHTML = `
-            <div class="state-name">${state}</div>
+            <div class="name-label">${state}</div>
             <label><input type="radio" name="${state}" value="Red"> Red</label>
             <label><input type="radio" name="${state}" value="Pink"> Pink</label>
             <label><input type="radio" name="${state}" value="Pale"> Pale</label>
             <label><input type="radio" name="${state}" value="Blue"> Blue</label>
         `;
-        container.appendChild(row);
+        statesContainer.appendChild(row);
+    });
+
+    // Generate Cities
+    const citiesContainer = document.getElementById('cities-container');
+    cities.forEach(city => {
+        const row = document.createElement('div');
+        row.className = 'city-row';
+        row.innerHTML = `
+            <div class="name-label">${city}</div>
+            <input type="number" name="${city}" placeholder="Weight" step="any">
+        `;
+        citiesContainer.appendChild(row);
     });
 
     // Handle Form Submission
-    document.getElementById('stateForm').addEventListener('submit', async (e) => {
+    document.getElementById('dataForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const btn = document.getElementById('submitBtn');
@@ -123,22 +95,20 @@
         btn.disabled = true;
         msg.innerText = '';
 
-        // Gather all selected radio buttons
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
 
         try {
-            // Send data to Google Sheets
             const response = await fetch(WEB_APP_URL, {
                 method: 'POST',
                 body: JSON.stringify(data),
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain prevents CORS preflight issues
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
             });
 
             if (response.ok) {
                 msg.style.color = 'green';
                 msg.innerText = 'Success! Selections sent to spreadsheet.';
-                e.target.reset(); // Clear the form
+                e.target.reset(); 
             } else {
                 throw new Error('Network response was not ok');
             }
