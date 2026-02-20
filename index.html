@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Selector</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        .state-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto auto;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .state-row:last-child {
+            border-bottom: none;
+        }
+        .state-name {
+            font-weight: 500;
+        }
+        label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Continental US State Selector</h1>
+    <form id="stateForm">
+        <div id="states-container"></div>
+        <button type="submit" id="submitBtn">Submit Selections</button>
+        <div id="message"></div>
+    </form>
+</div>
+
+<script>
+    // Paste your Google Apps Script Web App URL here!
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzwH1OoG6fGMF_L5FsKgeAWqljSTaM3t2oTMKXSo7KistR8DMlQj8YNntiLqrhVcwlP5w/exec';
+
+    const states = [
+        "Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
+        "Delaware", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa", 
+        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", 
+        "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", 
+        "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", 
+        "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", 
+        "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", 
+        "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+    ];
+
+    const container = document.getElementById('states-container');
+
+    // Generate the HTML for the 48 states
+    states.forEach(state => {
+        const row = document.createElement('div');
+        row.className = 'state-row';
+        row.innerHTML = `
+            <div class="state-name">${state}</div>
+            <label><input type="radio" name="${state}" value="Red"> Red</label>
+            <label><input type="radio" name="${state}" value="Pink"> Pink</label>
+            <label><input type="radio" name="${state}" value="Pale"> Pale</label>
+            <label><input type="radio" name="${state}" value="Blue"> Blue</label>
+        `;
+        container.appendChild(row);
+    });
+
+    // Handle Form Submission
+    document.getElementById('stateForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('message');
+        btn.innerText = 'Submitting...';
+        btn.disabled = true;
+        msg.innerText = '';
+
+        // Gather all selected radio buttons
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            // Send data to Google Sheets
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain prevents CORS preflight issues
+            });
+
+            if (response.ok) {
+                msg.style.color = 'green';
+                msg.innerText = 'Success! Selections sent to spreadsheet.';
+                e.target.reset(); // Clear the form
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        } catch (error) {
+            msg.style.color = 'red';
+            msg.innerText = 'Error submitting data. Check console for details.';
+            console.error('Error:', error);
+        } finally {
+            btn.innerText = 'Submit Selections';
+            btn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
